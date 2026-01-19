@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무리식 극한 - 10단계 변형문제</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            height: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00c9ff, #92fe9d);
+            border-radius: 25px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .difficulty.easy { background: #d4edda; color: #155724; }
+        .difficulty.medium { background: #fff3cd; color: #856404; }
+        .difficulty.hard { background: #f8d7da; color: #721c24; }
+
+        .problem {
+            font-size: 1.3rem;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: center;
+            line-height: 2;
+        }
+
+        .hint-box {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.95rem;
+        }
+
+        .hint-box strong {
+            color: #007bff;
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .choice-btn {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .choice-btn:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+            transform: translateY(-2px);
+        }
+
+        .choice-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .choice-btn.correct {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
+
+        .choice-btn.incorrect {
+            border-color: #dc3545;
+            background: #dc3545;
+            color: white;
+        }
+
+        .choice-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .solution-box {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f0fff4;
+            border: 2px solid #28a745;
+            border-radius: 15px;
+        }
+
+        .solution-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .solution-box h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .solution-content {
+            line-height: 1.8;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-card {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .result-detail {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .original-problem {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .original-problem h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.5rem; }
+            .problem { font-size: 1.1rem; padding: 15px; }
+            .choices { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>무리식 극한 - 유리화 기법</h1>
+            <p>10단계 변형문제로 마스터하기</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">문제 1 / 10</div>
+
+        <div class="quiz-card" id="quizCard">
+            <!-- 원본 문제 소개 -->
+            <div class="original-problem" id="originalProblem">
+                <h3>원본 문제 (2025학년도 수능 8번)</h3>
+                <div class="problem">
+                    \[\lim_{x \to 0} \frac{\sqrt{1+x} - \sqrt{1+2x^2}}{\sqrt{1-2x} - \sqrt{1+x^2}}\]
+                </div>
+                <p style="text-align: center; color: #856404;">
+                    이 문제를 기반으로 10단계 변형문제를 풀어봅시다!<br>
+                    <strong>핵심 기법: 분자, 분모 각각 유리화</strong>
+                </p>
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="startQuiz()">학습 시작하기</button>
+                </div>
+            </div>
+
+            <!-- 퀴즈 영역 -->
+            <div id="quizArea" style="display: none;">
+                <span class="step-badge" id="stepBadge">STEP 1</span>
+                <span class="difficulty" id="difficulty">기초</span>
+
+                <div class="problem" id="problemText"></div>
+
+                <div class="hint-box" id="hintBox">
+                    <strong>힌트:</strong> <span id="hintText"></span>
+                </div>
+
+                <div class="choices" id="choices"></div>
+
+                <div class="solution-box" id="solutionBox">
+                    <h4>풀이</h4>
+                    <div class="solution-content" id="solutionText"></div>
+                </div>
+
+                <div class="btn-container">
+                    <button class="btn btn-secondary" id="showSolutionBtn" onclick="showSolution()">풀이 보기</button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>다음 문제</button>
+                </div>
+            </div>
+
+            <!-- 결과 화면 -->
+            <div class="result-card" id="resultCard">
+                <div class="result-score" id="resultScore">0/10</div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-detail" id="resultDetail"></div>
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="restartQuiz()">다시 풀기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                step: 1,
+                difficulty: "easy",
+                difficultyText: "기초",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+x} - 1}{x}\\]",
+                hint: "분자를 유리화하세요. (1+x) - 1 = x를 이용합니다.",
+                choices: ["\\(\\frac{1}{2}\\)", "\\(1\\)", "\\(2\\)", "\\(0\\)", "\\(-1\\)"],
+                answer: 0,
+                solution: "분자를 유리화하면:<br><br>\\[\\frac{\\sqrt{1+x} - 1}{x} \\cdot \\frac{\\sqrt{1+x} + 1}{\\sqrt{1+x} + 1} = \\frac{(1+x) - 1}{x(\\sqrt{1+x} + 1)} = \\frac{x}{x(\\sqrt{1+x} + 1)}\\]<br><br>\\[= \\frac{1}{\\sqrt{1+x} + 1} \\to \\frac{1}{1+1} = \\frac{1}{2}\\]"
+            },
+            {
+                step: 2,
+                difficulty: "easy",
+                difficultyText: "기초",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1-2x} - 1}{x}\\]",
+                hint: "분자를 유리화하세요. (1-2x) - 1 = -2x를 이용합니다.",
+                choices: ["\\(1\\)", "\\(-1\\)", "\\(2\\)", "\\(-2\\)", "\\(0\\)"],
+                answer: 1,
+                solution: "분자를 유리화하면:<br><br>\\[\\frac{\\sqrt{1-2x} - 1}{x} \\cdot \\frac{\\sqrt{1-2x} + 1}{\\sqrt{1-2x} + 1} = \\frac{(1-2x) - 1}{x(\\sqrt{1-2x} + 1)} = \\frac{-2x}{x(\\sqrt{1-2x} + 1)}\\]<br><br>\\[= \\frac{-2}{\\sqrt{1-2x} + 1} \\to \\frac{-2}{1+1} = -1\\]"
+            },
+            {
+                step: 3,
+                difficulty: "easy",
+                difficultyText: "기초",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+2x^2} - 1}{x^2}\\]",
+                hint: "분자를 유리화하세요. x → 0일 때 x² 항에 주목합니다.",
+                choices: ["\\(0\\)", "\\(\\frac{1}{2}\\)", "\\(1\\)", "\\(2\\)", "\\(-1\\)"],
+                answer: 2,
+                solution: "분자를 유리화하면:<br><br>\\[\\frac{\\sqrt{1+2x^2} - 1}{x^2} \\cdot \\frac{\\sqrt{1+2x^2} + 1}{\\sqrt{1+2x^2} + 1} = \\frac{(1+2x^2) - 1}{x^2(\\sqrt{1+2x^2} + 1)} = \\frac{2x^2}{x^2(\\sqrt{1+2x^2} + 1)}\\]<br><br>\\[= \\frac{2}{\\sqrt{1+2x^2} + 1} \\to \\frac{2}{1+1} = 1\\]"
+            },
+            {
+                step: 4,
+                difficulty: "medium",
+                difficultyText: "표준",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+x} - \\sqrt{1-x}}{x}\\]",
+                hint: "분자를 통째로 유리화하세요. (√a - √b)(√a + √b) = a - b",
+                choices: ["\\(0\\)", "\\(\\frac{1}{2}\\)", "\\(1\\)", "\\(2\\)", "\\(-1\\)"],
+                answer: 2,
+                solution: "분자를 유리화하면:<br><br>\\[\\frac{(\\sqrt{1+x} - \\sqrt{1-x})(\\sqrt{1+x} + \\sqrt{1-x})}{x(\\sqrt{1+x} + \\sqrt{1-x})} = \\frac{(1+x) - (1-x)}{x(\\sqrt{1+x} + \\sqrt{1-x})}\\]<br><br>\\[= \\frac{2x}{x(\\sqrt{1+x} + \\sqrt{1-x})} = \\frac{2}{\\sqrt{1+x} + \\sqrt{1-x}} \\to \\frac{2}{1+1} = 1\\]"
+            },
+            {
+                step: 5,
+                difficulty: "medium",
+                difficultyText: "표준",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+x} - 1}{\\sqrt{1-2x} - 1}\\]",
+                hint: "분자와 분모를 각각 유리화하거나, 각각 x로 나눠서 계산합니다.",
+                choices: ["\\(\\frac{1}{2}\\)", "\\(-\\frac{1}{2}\\)", "\\(2\\)", "\\(-2\\)", "\\(1\\)"],
+                answer: 1,
+                solution: "분자, 분모를 각각 유리화하면:<br><br>분자: \\(\\sqrt{1+x} - 1 \\approx \\frac{x}{2}\\) (x → 0)<br>분모: \\(\\sqrt{1-2x} - 1 \\approx \\frac{-2x}{2} = -x\\) (x → 0)<br><br>\\[\\therefore \\lim_{x \\to 0} \\frac{\\frac{x}{2}}{-x} = \\frac{1}{2} \\cdot (-1) = -\\frac{1}{2}\\]"
+            },
+            {
+                step: 6,
+                difficulty: "medium",
+                difficultyText: "표준",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+3x} - \\sqrt{1+x}}{x}\\]",
+                hint: "분자를 유리화하면 (1+3x) - (1+x) = 2x가 됩니다.",
+                choices: ["\\(0\\)", "\\(\\frac{1}{2}\\)", "\\(1\\)", "\\(2\\)", "\\(3\\)"],
+                answer: 2,
+                solution: "분자를 유리화하면:<br><br>\\[\\frac{(1+3x) - (1+x)}{x(\\sqrt{1+3x} + \\sqrt{1+x})} = \\frac{2x}{x(\\sqrt{1+3x} + \\sqrt{1+x})}\\]<br><br>\\[= \\frac{2}{\\sqrt{1+3x} + \\sqrt{1+x}} \\to \\frac{2}{1+1} = 1\\]"
+            },
+            {
+                step: 7,
+                difficulty: "medium",
+                difficultyText: "표준",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+x} - \\sqrt{1+x^2}}{x}\\]",
+                hint: "분자를 유리화하면 x - x² = x(1-x)가 됩니다.",
+                choices: ["\\(0\\)", "\\(\\frac{1}{2}\\)", "\\(1\\)", "\\(-\\frac{1}{2}\\)", "\\(-1\\)"],
+                answer: 1,
+                solution: "분자를 유리화하면:<br><br>\\[\\frac{(1+x) - (1+x^2)}{x(\\sqrt{1+x} + \\sqrt{1+x^2})} = \\frac{x - x^2}{x(\\sqrt{1+x} + \\sqrt{1+x^2})} = \\frac{x(1-x)}{x(\\sqrt{1+x} + \\sqrt{1+x^2})}\\]<br><br>\\[= \\frac{1-x}{\\sqrt{1+x} + \\sqrt{1+x^2}} \\to \\frac{1}{1+1} = \\frac{1}{2}\\]"
+            },
+            {
+                step: 8,
+                difficulty: "hard",
+                difficultyText: "심화",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+x} - \\sqrt{1+2x^2}}{\\sqrt{1-2x} - \\sqrt{1+x^2}}\\]",
+                hint: "원본 문제입니다! 분자, 분모를 각각 유리화하세요.",
+                choices: ["\\(-2\\)", "\\(-1\\)", "\\(-\\frac{1}{2}\\)", "\\(-\\frac{1}{3}\\)", "\\(-\\frac{1}{4}\\)"],
+                answer: 2,
+                solution: "분자 유리화:<br>\\[\\sqrt{1+x} - \\sqrt{1+2x^2} = \\frac{(1+x)-(1+2x^2)}{\\sqrt{1+x}+\\sqrt{1+2x^2}} = \\frac{x-2x^2}{\\sqrt{1+x}+\\sqrt{1+2x^2}} = \\frac{x(1-2x)}{\\sqrt{1+x}+\\sqrt{1+2x^2}}\\]<br><br>분모 유리화:<br>\\[\\sqrt{1-2x} - \\sqrt{1+x^2} = \\frac{(1-2x)-(1+x^2)}{\\sqrt{1-2x}+\\sqrt{1+x^2}} = \\frac{-2x-x^2}{\\sqrt{1-2x}+\\sqrt{1+x^2}} = \\frac{-x(2+x)}{\\sqrt{1-2x}+\\sqrt{1+x^2}}\\]<br><br>\\[\\therefore \\lim_{x \\to 0} \\frac{x(1-2x)}{\\sqrt{1+x}+\\sqrt{1+2x^2}} \\cdot \\frac{\\sqrt{1-2x}+\\sqrt{1+x^2}}{-x(2+x)} = \\frac{1 \\cdot 2}{2 \\cdot (-2)} = -\\frac{1}{2}\\]"
+            },
+            {
+                step: 9,
+                difficulty: "hard",
+                difficultyText: "심화",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+2x} - \\sqrt{1+x^2}}{\\sqrt{1-x} - \\sqrt{1+3x^2}}\\]",
+                hint: "원본과 유사한 구조입니다. 분자, 분모 각각 유리화 후 계산하세요.",
+                choices: ["\\(-2\\)", "\\(-1\\)", "\\(-\\frac{1}{2}\\)", "\\(1\\)", "\\(2\\)"],
+                answer: 1,
+                solution: "분자 유리화:<br>\\[\\sqrt{1+2x} - \\sqrt{1+x^2} = \\frac{2x-x^2}{\\sqrt{1+2x}+\\sqrt{1+x^2}} = \\frac{x(2-x)}{\\sqrt{1+2x}+\\sqrt{1+x^2}}\\]<br><br>분모 유리화:<br>\\[\\sqrt{1-x} - \\sqrt{1+3x^2} = \\frac{-x-3x^2}{\\sqrt{1-x}+\\sqrt{1+3x^2}} = \\frac{-x(1+3x)}{\\sqrt{1-x}+\\sqrt{1+3x^2}}\\]<br><br>\\[\\therefore \\lim_{x \\to 0} \\frac{x(2-x)}{\\sqrt{1+2x}+\\sqrt{1+x^2}} \\cdot \\frac{\\sqrt{1-x}+\\sqrt{1+3x^2}}{-x(1+3x)} = \\frac{2 \\cdot 2}{2 \\cdot (-1)} = -2 \\cdot 1 = -1\\]"
+            },
+            {
+                step: 10,
+                difficulty: "hard",
+                difficultyText: "심화",
+                problem: "\\[\\lim_{x \\to 0} \\frac{\\sqrt{1+3x} - \\sqrt{1+x^2}}{\\sqrt{1-4x} - \\sqrt{1+2x^2}}\\]",
+                hint: "최종 도전 문제! 분자, 분모 유리화 후 x → 0 극한값을 구하세요.",
+                choices: ["\\(-\\frac{1}{4}\\)", "\\(-\\frac{1}{2}\\)", "\\(-\\frac{3}{4}\\)", "\\(-1\\)", "\\(-\\frac{3}{2}\\)"],
+                answer: 2,
+                solution: "분자 유리화:<br>\\[\\sqrt{1+3x} - \\sqrt{1+x^2} = \\frac{3x-x^2}{\\sqrt{1+3x}+\\sqrt{1+x^2}} = \\frac{x(3-x)}{\\sqrt{1+3x}+\\sqrt{1+x^2}}\\]<br>x → 0: \\(\\frac{x \\cdot 3}{2} = \\frac{3x}{2}\\)<br><br>분모 유리화:<br>\\[\\sqrt{1-4x} - \\sqrt{1+2x^2} = \\frac{-4x-2x^2}{\\sqrt{1-4x}+\\sqrt{1+2x^2}} = \\frac{-2x(2+x)}{\\sqrt{1-4x}+\\sqrt{1+2x^2}}\\]<br>x → 0: \\(\\frac{-2x \\cdot 2}{2} = -2x\\)<br><br>\\[\\therefore \\lim_{x \\to 0} \\frac{\\frac{3x}{2}}{-2x} = \\frac{3}{2} \\cdot (-\\frac{1}{2}) = -\\frac{3}{4}\\]"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function startQuiz() {
+            document.getElementById('originalProblem').style.display = 'none';
+            document.getElementById('quizArea').style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const problem = problems[currentQuestion];
+
+            document.getElementById('stepBadge').textContent = `STEP ${problem.step}`;
+            document.getElementById('difficulty').textContent = problem.difficultyText;
+            document.getElementById('difficulty').className = `difficulty ${problem.difficulty}`;
+            document.getElementById('problemText').innerHTML = problem.problem;
+            document.getElementById('hintText').textContent = problem.hint;
+
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+            problem.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = choice;
+                btn.onclick = () => selectAnswer(index);
+                choicesDiv.appendChild(btn);
+            });
+
+            document.getElementById('solutionBox').classList.remove('show');
+            document.getElementById('solutionText').innerHTML = problem.solution;
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('showSolutionBtn').disabled = false;
+
+            updateProgress();
+            MathJax.typesetPromise();
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const problem = problems[currentQuestion];
+            const buttons = document.querySelectorAll('.choice-btn');
+
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === problem.answer) {
+                    btn.classList.add('correct');
+                } else if (i === index && index !== problem.answer) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (index === problem.answer) {
+                score++;
+            }
+
+            document.getElementById('nextBtn').disabled = false;
+            showSolution();
+        }
+
+        function showSolution() {
+            document.getElementById('solutionBox').classList.add('show');
+            document.getElementById('showSolutionBtn').disabled = true;
+            MathJax.typesetPromise();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < problems.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / problems.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `문제 ${currentQuestion + 1} / ${problems.length}`;
+        }
+
+        function showResult() {
+            document.getElementById('quizArea').style.display = 'none';
+            document.getElementById('resultCard').classList.add('show');
+
+            document.getElementById('resultScore').textContent = `${score}/${problems.length}`;
+
+            let message, detail;
+            const percentage = (score / problems.length) * 100;
+
+            if (percentage === 100) {
+                message = "완벽합니다!";
+                detail = "무리식 극한의 유리화 기법을 완전히 마스터했습니다!";
+            } else if (percentage >= 80) {
+                message = "훌륭합니다!";
+                detail = "유리화 기법을 잘 이해하고 있습니다. 조금만 더 연습하면 완벽해질 거예요!";
+            } else if (percentage >= 60) {
+                message = "좋은 시도입니다!";
+                detail = "기본 개념은 알고 있습니다. 복잡한 문제에서 연습이 더 필요해요.";
+            } else if (percentage >= 40) {
+                message = "더 연습이 필요합니다";
+                detail = "유리화 공식을 다시 복습하고, 기초 문제부터 차근차근 풀어보세요.";
+            } else {
+                message = "기초부터 다시 시작해봐요";
+                detail = "√a - √b 형태의 유리화 공식을 먼저 익히고 다시 도전해보세요!";
+            }
+
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultDetail').textContent = detail;
+
+            document.getElementById('progressBar').style.width = '100%';
+            document.getElementById('progressText').textContent = '완료!';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('resultCard').classList.remove('show');
+            document.getElementById('originalProblem').style.display = 'block';
+            document.getElementById('quizArea').style.display = 'none';
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
